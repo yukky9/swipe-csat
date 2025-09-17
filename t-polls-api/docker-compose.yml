@@ -1,0 +1,50 @@
+name: "t-polls"
+
+services:
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./config/.env.api
+    ports:
+      - "5252:8082"
+      - "8082:8082"
+    depends_on:
+      - database
+    volumes:
+      - .:/app
+    networks:
+      - backend
+
+  database:
+    container_name: database
+    image: postgres
+    restart: unless-stopped
+    env_file:
+      - config/.env.database
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  adminer:
+    container_name: adminer
+    image: adminer
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    depends_on:
+      - database
+    networks:
+      - backend
+
+
+volumes:
+  db_data:
+
+networks:
+  backend:
+    name: backend
